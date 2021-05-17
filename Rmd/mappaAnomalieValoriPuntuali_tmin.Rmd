@@ -1,0 +1,189 @@
+---
+title: ""
+params:
+  param: tmin
+  annoI: 1961
+  annoF: 2020
+  climatolI: 1961
+  climatolF: 1990
+output: html_document
+---
+
+```{r,include=FALSE,message=FALSE,echo=FALSE,error=FALSE}
+library("dplyr")
+library("tidyr")
+library("readr")
+library("sf")
+library("RPostgreSQL")
+library("postGIStools")
+library("magrittr")
+library("stringr")
+library("gstat")
+library("ggplot2")
+library("ggrepel")
+library("rgdal")
+library("fields")
+library("gtools")
+library("purrr")
+library("scico")
+library("knitr")
+library("gghighlight")
+library("regioniItalia")
+
+knitr::opts_chunk$set(include = FALSE,echo=FALSE,warning = FALSE,message = FALSE,fig.width = 8,fig.asp=0.8)
+thematic::thematic_rmd()
+
+PARAM<-params$param
+annoI<-params$annoI
+annoF<-params$annoF
+
+climatolI<-1961
+climatolF<-1990
+
+ANNI<-annoI:annoF
+
+nomeA<-list.files(pattern=sprintf("Tmin.+\\.csv$",PARAM))
+stopifnot(length(nomeA)==1)
+
+#lettura dati anomalie mensili
+read_delim(nomeA,delim=";",col_names = TRUE) %>% mutate(metodo="acmant")->dati
+```
+
+## Anomalie mensili `r params$param`, serie puntuali, anno `r params$annoF`   
+
+Periodo climatologico di riferimento: `r params$climatolI` - `r params$climatolF`   
+
+---
+
+Osservazioni:
+
+- [Mese di Giugno](https://www.iconaclima.it/italia/clima/clima-giugno-anomalo-dati/)  
+
+- La stazione aosta_105 da quest'anno ha il codice aosta_57
+
+- La stazione sicilia_56 presenta anomalie di temperatura minima sospette, eliminare 
+
+---
+
+### Numero di stazioni per rete
+
+```{r,include=TRUE,fig.height=4}
+names(dati)->nomi
+str_extract(nomi,"^[[:alpha:]]+_")->nomiRete
+tibble(rete=nomiRete[!is.na(nomiRete)]->nomiRete) %>%
+  mutate(rete=str_remove(rete,"_"))->nomi
+
+ggplot(data=nomi)+
+  geom_bar(aes(x=rete,fill=rete),stat="count")+
+  stat_count(geom="text",aes(x=rete,label=..count..),position = position_nudge(y=5))+
+  theme_bw()+
+  ylab("Numero stazioni")+
+  xlab("")+
+  scale_fill_discrete(guide=FALSE)+
+  scale_y_continuous(limits=c(0,80))+
+  theme(axis.text.x.bottom = element_text(angle = 90,size=12))
+```
+
+
+### Sintesi anomalie per stazione
+
+```{r,include=TRUE}
+skimr::skim_with(numeric=list(hist=NULL))
+skimr::skim(dati %>% dplyr::select(-yy,-mm))
+```
+
+
+```{r}
+dbConnect(PostgreSQL(),user="guido",host="localhost",port=5432,dbname="scia",password="guidofioravanti")->db
+get_postgis_query(db, "SELECT siteid,cod_rete_guido,geom FROM anagrafica.stazioni",geom_name = "geom")->anaQuery
+dbGetQuery(db, "SELECT cod_rete,nome_rete FROM tbl_lookup.rete_guido_lp;")->reteQuery
+dbDisconnect(db)
+
+#trasformo anaQuery in data.frame
+as.data.frame(anaQuery)->anaQuery
+
+left_join(anaQuery,reteQuery,by=c("cod_rete_guido"="cod_rete")) %>% mutate(codice=paste0(nome_rete,"_",siteid))->anagraficaAnomalie
+
+dati %>%
+  dplyr::select(-metodo)%>%gather(key=codice,value=temp,-yy,-mm)->gdati
+```
+
+
+```{r}
+left_join(gdati,anagraficaAnomalie,by=c("codice"="codice")) %>% filter(!is.na(temp))->gdati2
+st_as_sf(gdati2,coords=c("coords.x1","coords.x2"),crs=4326)->sfDati
+
+#gdati2
+gdati2[!duplicated(gdati2$codice),]->unici
+
+#aggregato annuale
+gdati2 %>%
+  group_by(yy,codice)%>%
+  summarise(media=mean(temp,na.rm=TRUE))%>%
+  ungroup()->media
+
+left_join(media,unici %>% dplyr::select(codice,coords.x1,coords.x2,nome_rete))->media
+
+st_as_sf(media,coords=c("coords.x1","coords.x2"),crs=4326)->sfMedia
+```
+
+#
+
+```{r}
+skimr::skim(media$media)
+```
+
+### Andamento anomalie mensili 2010 - `r params$annoF`
+
+```{r, include=TRUE,fig.height=14,fig.width=16}
+ggplot(data=media %>% filter(yy>=2010) %>% mutate(yy=factor(yy,levels=2010:annoF,ordered=TRUE)))+
+  geom_boxplot(aes(x=nome_rete,y=media))+
+  facet_wrap(~yy,ncol=5)+
+  theme_bw()+
+  theme(axis.text.x.bottom = element_text(angle=90,size=12))
+```
+
+### Andamento anomalie mensili per rete, anno `r annoF`
+
+```{r,include=TRUE,fig.height=10,fig.width=12}
+ggplot(data=gdati %>% filter(yy==annoF) %>% mutate(mm2=factor(month.name[as.integer(mm)],levels=month.name,ordered = TRUE)) %>% separate(codice,into=c("rete","SiteID"),sep="_"))+
+  geom_boxplot(aes(x=rete,y=temp))+
+  facet_wrap(~mm2)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle=90,size=12))
+```
+
+<br><br><br>
+
+
+### Mappe anomalie mensili anno `r annoF`
+
+```{r,include=TRUE,fig.width=8,fig.height=16}
+sfDati %>% 
+  filter(yy==annoF) %>% 
+  mutate(mm2=factor(month.name[as.integer(mm)],levels=month.name,ordered = TRUE))->subDati  
+
+ggplot()+
+  geom_sf(data=italia,fill="lightgray")+
+  geom_sf(data=subDati,aes(fill=temp,size=temp),pch=21)+
+  scale_fill_scico(palette="vik")+
+  scale_size(range=c(1,4))+
+  facet_wrap(~mm2,ncol = 4)+
+  theme_void()
+```  
+  
+<br><br><br>
+
+### Andamento anomalie mensili per rete, anno `r annoF`
+
+In evidenza le serie con valori massimi superiore a 4 gradi e valori minimi inferiori a -3.5 gradi.
+
+```{r,include=TRUE,fig.width=12,fig.height=15}
+ggplot(data=subDati %>% filter(yy==annoF) %>% mutate(mm2=factor(month.name[as.integer(mm)],levels=month.name,ordered = TRUE)))+
+  geom_line(aes(x=mm2,y=temp,group=codice,color=codice))+
+  gghighlight(max(temp) >4 | min(temp)< -3.5,calculate_per_facet = TRUE,use_direct_label = TRUE)+
+  facet_wrap(~nome_rete)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle=90,size=12))
+```  
+

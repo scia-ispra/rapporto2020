@@ -1,0 +1,25 @@
+---
+title: Risultati preliminari rapporto 2020
+date: 17 maggio 2021
+output:
+  rmdformats::material
+---
+
+```{r setup,include=FALSE,echo=FALSE,error=FALSE,message=FALSE}
+options(knitr.duplicate.label="allow")
+```
+
+
+## Capitolo 2: temperatura
+
+# Temperatura massima
+
+[Risultati](./mappaAnomalieValoriPuntuali_tmax.html) per le serie di anomalia di temperatura massima. 
+
+
+# Temperatura minima
+
+[Risultati](./mappaAnomalieValoriPuntuali_tmin.html) per le serie di anomalia di temperatura minima. 
+
+
+
