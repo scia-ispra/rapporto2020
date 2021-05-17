@@ -14,12 +14,15 @@ options(knitr.duplicate.label="allow")
 
 # Temperatura massima
 
-[Risultati](./mappaAnomalieValoriPuntuali_tmax.html) per le serie di anomalia di temperatura massima. 
+[Risultati](./mappaAnomalieValoriPuntuali_tmax.html) per le serie puntuali di anomalia di temperatura massima. 
 
 
 # Temperatura minima
 
-[Risultati](./mappaAnomalieValoriPuntuali_tmin.html) per le serie di anomalia di temperatura minima. 
+[Risultati](./mappaAnomalieValoriPuntuali_tmin.html) per le serie puntuali di anomalia di temperatura minima. 
 
 
+# Temperatura media
+
+[Risultati](./mappaAnomalieValoriPuntuali_tmean.html) per le serie puntuali di anomalia di temperatura media. 
 
