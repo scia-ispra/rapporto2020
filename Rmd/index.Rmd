@@ -26,3 +26,5 @@ options(knitr.duplicate.label="allow")
 
 [Risultati](./mappaAnomalieValoriPuntuali_tmean.html) per le serie puntuali di anomalia di temperatura media. 
 
+[Anomalie spazializzate](./analisi_anomalie_tmean.html): grafici e analisi del trend.
+
