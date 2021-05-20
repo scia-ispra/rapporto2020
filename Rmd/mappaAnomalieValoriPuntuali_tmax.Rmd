@@ -95,7 +95,7 @@ ggplot(data=nomi)+
 
 ```{r,include=TRUE}
 skimr::skim_with(numeric=list(hist=NULL))
-skimr::skim(dati %>% dplyr::select(-yy,-mm))
+skimr::skim(dati %>% filter(yy==annoF) %>% dplyr::select(-yy,-mm))
 ```
 
 
@@ -172,7 +172,7 @@ sfDati %>%
 ggplot()+
   geom_sf(data=italia,fill="lightgray")+
   geom_sf(data=subDati,aes(fill=temp,size=temp),pch=21)+
-  scale_fill_scico(palette="vik")+
+  scale_fill_scico(palette="vik",limits=c(-8,8))+
   scale_size(range=c(1,4))+
   facet_wrap(~mm2,ncol = 4)+
   theme_void()

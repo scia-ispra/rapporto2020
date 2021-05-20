@@ -1,7 +1,7 @@
 ---
 title: ""
 params:
-  param: tmin
+  param: tmean
   annoI: 1961
   annoF: 2020
   climatolI: 1961
@@ -42,7 +42,7 @@ climatolF<-1990
 
 ANNI<-annoI:annoF
 
-nomeA<-list.files(pattern=sprintf("Tmin.+\\.csv$",PARAM))
+nomeA<-list.files(pattern=sprintf("Tmean.+\\.csv$",PARAM))
 stopifnot(length(nomeA)==1)
 
 #lettura dati anomalie mensili
@@ -57,13 +57,9 @@ Periodo climatologico di riferimento: `r params$climatolI` - `r params$climatolF
 
 Osservazioni:
 
-- [Mese di Giugno](https://www.iconaclima.it/italia/clima/clima-giugno-anomalo-dati/)  
+- Dal calcolo e' stata invalidata (per il 2020) la stazione "sicilia_56" per l'andamento strano di temperatura minima nel 2020
 
-- La stazione aosta_105 da quest'anno ha il codice aosta_57
-
-- **La stazione sicilia_56 presenta anomalie di temperatura minima sospette: eliminata dai calcoli per anomalie ed estremi di Tmin e Tmean**
-
-- **Sospette le anomalie di temperatura della Valle d'Aosta dal 2016 ad oggi (aosta_57): eliminata dai calcoli per anomalie ed estremi di Tmine Tmean** 
+- Dal calcolo e' stata invalidata (per il 2020) la stazione "aosta_57" per le anomalie di temperatura minima nel 2020 particolarmente alte
 
 ---
 
@@ -168,7 +164,7 @@ sfDati %>%
 ggplot()+
   geom_sf(data=italia,fill="lightgray")+
   geom_sf(data=subDati,aes(fill=temp,size=temp),pch=21)+
-  scale_fill_scico(palette="vik",limits=c(-8,8))+
+  scale_fill_scico(palette="vik",limits=c(-7,7))+
   scale_size(range=c(1,4))+
   facet_wrap(~mm2,ncol = 4)+
   theme_void()
@@ -178,14 +174,12 @@ ggplot()+
 
 ### Andamento anomalie mensili per rete, anno `r annoF`
 
-In evidenza le serie con valori massimi superiore a 4 gradi e valori minimi inferiori a -3.5 gradi.
+In evidenza le serie con valori massimi superiore a 6 gradi e valori minimi inferiori a -3 gradi.
 
 ```{r,include=TRUE,fig.width=12,fig.height=15}
-ggplot(data=subDati %>% filter(yy==annoF) %>% mutate(mm2=factor(month.name[as.integer(mm)],levels=month.name,ordered = TRUE)))+
-  geom_line(aes(x=mm2,y=temp,group=codice,color=codice))+
-  gghighlight(max(temp) >4 | min(temp)< -3.5,calculate_per_facet = TRUE,use_direct_label = TRUE)+
+ggplot(data=subDati %>% filter(yy==annoF) %>% mutate(mm=as.integer(mm),mm=factor(mm,levels=1:12,ordered=TRUE)))+
+  geom_line(aes(x=mm,y=temp,group=codice,color=codice))+
+  gghighlight(max(temp) >6 | min(temp)< -3,calculate_per_facet = TRUE,use_direct_label = TRUE)+
   facet_wrap(~nome_rete)+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle=90,size=12))
+  theme_bw()
 ```  
-

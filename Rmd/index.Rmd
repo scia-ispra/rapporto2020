@@ -28,3 +28,5 @@ options(knitr.duplicate.label="allow")
 
 [Anomalie spazializzate](./analisi_anomalie_tmean.html): grafici e analisi del trend.
 
+[Anomalie spazializzate, barplot per nord-centro e sud Italia](./graficoConItalia_tmean_nord_centro_sud.html): grafici e dati.
+
