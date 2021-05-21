@@ -30,3 +30,13 @@ options(knitr.duplicate.label="allow")
 
 [Anomalie spazializzate, barplot per nord-centro e sud Italia](./graficoConItalia_tmean_nord_centro_sud.html): grafici e dati.
 
+
+# Temperatura media: stagionali
+
+[Anomalie inverno](./analisi_anomalie_tmean_inverno.html): grafici e analisi del trend.
+
+[Anomalie primavera](./analisi_anomalie_tmean_primavera.html): grafici e analisi del trend.
+
+[Anomalie estate](./analisi_anomalie_tmean_estate.html): grafici e analisi del trend.
+
+[Anomalie autunno](./analisi_anomalie_tmean_autunno.html): grafici e analisi del trend.
