@@ -16,10 +16,14 @@ options(knitr.duplicate.label="allow")
 
 [Risultati](./mappaAnomalieValoriPuntuali_tmax.html) per le serie puntuali di anomalia di temperatura massima. 
 
+[Anomalie spazializzate](./analisi_anomalie_tmax.html): grafici e analisi del trend.
+
 
 # Temperatura minima
 
 [Risultati](./mappaAnomalieValoriPuntuali_tmin.html) per le serie puntuali di anomalia di temperatura minima. 
+
+[Anomalie spazializzate](./analisi_anomalie_tmin.html): grafici e analisi del trend.
 
 
 # Temperatura media
