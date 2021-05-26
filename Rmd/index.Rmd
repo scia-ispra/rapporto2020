@@ -42,3 +42,8 @@ options(knitr.duplicate.label="allow")
 [Anomalie estate](./analisi_anomalie_tmean_estate.html): grafici e analisi del trend.
 
 [Anomalie autunno](./analisi_anomalie_tmean_autunno.html): grafici e analisi del trend.
+
+# Estremi di temperatura
+
+[Estremi ETCCDI](./estremi_temperatura.html): grafici e dati
+
