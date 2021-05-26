@@ -32,6 +32,8 @@ options(knitr.duplicate.label="allow")
 
 [Anomalie mensili spazializzate](./mappaAnomalieMensili.html)
 
+[Anomalie annuali e mensili, barplot](./barplot_anomalie_tmean_annuali_mensili.html)
+
 
 # Temperatura media: stagionali
 
